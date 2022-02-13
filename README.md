@@ -8,6 +8,10 @@ This is a fork of [Michael Daffin](https://gitlab.com/mdaffin/arch-pkgs) work.
 **WARNING** This will wipe a drive and install Arch Linux on it. **DO NOT** run
 unless you have read through it first.
 
+```bash
+curl -sL https://bit.ly/33g6Goi | bash
+```
+
 For more details see these blog posts:
 
 - **Part 1:** [Hosting an Arch Linux Repository in an Amazon S3 Bucket]
