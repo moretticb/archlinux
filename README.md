@@ -29,3 +29,11 @@ and installers are for my personal use and as such I will not approve pull
 requests for features I do not need. Feel free to raise issues if you want help
 with your own packages, have an interesting idea, want some clarification or
 want to discuss something generally.
+
+## Build
+
+Builds packages and creates the database for the repository.
+
+```bash
+./build
+```
