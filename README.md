@@ -9,7 +9,7 @@ This is a fork of [Michael Daffin](https://gitlab.com/mdaffin/arch-pkgs) work.
 unless you have read through it first.
 
 ```bash
-curl -sL https://bit.ly/33g6Goi | bash
+curl -sL https://bit.ly/3p324JP | bash
 ```
 
 For more details see these blog posts:
