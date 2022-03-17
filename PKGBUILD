@@ -1,33 +1,40 @@
-# Maintainer: Lemuel Roberto Bonifácio
-pkgbase=lemuel
-pkgname=(lemuel-base)
+# Maintainer: Caio Benatti Moretti
+pkgbase=moretticb
+pkgname=(moretticb-base)
 pkgver=1
 pkgrel=1
 pkgdesc="Base meta package for my Arch Linux machines"
 arch=(any)
-url="https://github.com/lemuelroberto/install-arch"
+url="https://github.com/moretticb/archlinux"
 license=(MIT)
-groups=(lemuel)
+groups=(moretticb)
 
 rootdir=$PWD
 
-package_lemuel-base() {
-    install=lemuel-base.install
+package_moretticb-base() {
+    install=moretticb-base.install
 
     depends=(
+        adobe-source-code-pro-fonts
+        adwaita-icon-theme
         alacritty
         alsa-utils
         arandr
+        archlinux-keyring
         autoconf
         automake
+        awesome-terminal-fonts
         baobab
         base
         bc
+        beep
         bind
         binutils
         bison
         brightnessctl
+        bzip2
         calc
+        cantarell-fonts
         chromium
         code
         composer
@@ -38,92 +45,132 @@ package_lemuel-base() {
         dmenu
         docker
         docker-compose
+        dosfstools
         e2fsprogs
         efibootmgr
         eog
         evince
         fakeroot
         feh
+        ffmpeg
+        figlet
         firefox
         flex
+        fontconfig
+        freetype2
         fwupd
         gcc
         git
         github-cli
+        gnu-free-fonts
         go
         go-tools
         gparted
+        gpick
         graphviz
         groff
+        gsfonts
+        gzip
         htop
         hwdata
-        i3-wm
+        i3blocks
+        i3-gaps
         i3lock
         i3status
+        imagemagick
         inetutils
         intel-ucode
+        ipython
         jfsutils
         jq
+        jupyter
+        jupyter-notebook
         kubectl
         less
         libmnl
         libreoffice-fresh
         libtool
+        links
         linux
         linux-firmware
         logrotate
+        lolcat
         lsof
         lvm2
         m4
         make
         man-db
         man-pages
+        masterpdfeditor-free
         mdadm
         meld
         mesa
         mtr
         ncdu
+        ncurses
+        neofetch
+        nerd-fonts-mononoki
         netctl
-        network-manager-applet
         networkmanager
+        network-manager-applet
         networkmanager-openconnect
         networkmanager-pptp
-        nm-connection-editor
+        nitrogen
         nmap
+        nm-connection-editor
+        noto-fonts
+        noto-fonts-emoji
+        noto-fonts-extra
         npm
         ntfs-3g
         obs-studio
         openconnect
         openssh
+        otf-font-awesome
         pacman-contrib
         pam
+        pamixer
+        pandoc
+        pango
         parallel
+        parted
         patch
         pavucontrol
         pdftk
         perl
         php
+        picom
         pkgconf
         pkgfile
+        playerctl
+        powerline-fonts
         protobuf
         pulseaudio
         pulseaudio-alsa
+        python
+        python2
+        python-pandas
+        python-pillow
         python-pip
         python-pyqt5
-        python2
         qt5-quickcontrols
         qt5-sensors
         qt5-webkit
+        ranger
+        rapidjson
         reiserfsprogs
         rsync
-        s-nail
         sbcl
+        scrot
         shadow
         shellcheck
+        s-nail
         sof-firmware
         staticcheck
         sudo
         sysfsutils
+        tcl
+        termite
         terraform
         texinfo
         thunar
@@ -131,6 +178,9 @@ package_lemuel-base() {
         traceroute
         transmission-gtk
         tree
+        ttf-font-awesome
+        ttf-inconsolata
+        ttf-ms-fonts
         unrar
         unzip
         upx
@@ -144,17 +194,37 @@ package_lemuel-base() {
         which
         woff2
         xclip
+        xdotool
+        xf86-input-libinput
+        xf86-video-fbdev
         xf86-video-intel
+        xf86-video-vesa
+        xf86-video-vmware
         xfce4-screenshooter
+        xorg-fonts-100dpi
+        xorg-fonts-75dpi
+        xorg-fonts-alias-100dpi
+        xorg-fonts-alias-75dpi
+        xorg-fonts-encodings
+        xorg-font-util
+        xorg-mkfontscale
+        xorgproto
         xorg-server
+        xorg-setxkbmap
         xorg-xbacklight
+        xorg-xev
         xorg-xhost
         xorg-xinit
         xorg-xkill
         xorg-xrandr
         xorg-xset
+        xsel
+        yaourt
         yarn
         yq
+        zathura
+        zathura-pdf-mupdf
+        zenity
         zip
     )
 

@@ -3,7 +3,7 @@
 set -euEo pipefail
 trap 'echo "${BASH_SOURCE:-unknown}:${LINENO:-unknown}: $BASH_COMMAND";' ERR
 
-readonly REPO_NAME="lemuel"
+readonly REPO_NAME="moretticb"
 
 rm -fv ./*.pkg.tar.zst "${REPO_NAME}".db* "${REPO_NAME}".files*
 makepkg
