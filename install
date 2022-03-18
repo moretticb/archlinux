@@ -126,9 +126,8 @@ arch-chroot /mnt systemctl enable docker.service
 
 
 
-#arch-chroot /mnt pacman -S grub efibootbgr
-pacstrap /mnt grub efibootbgr
-pacstrap /mnt os-prober
+echo Y | arch-chroot /mnt pacman -S grub efibootbgr
+echo Y | arch-chroot /mnt pacman -S os-prober
 
 arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/efi/ --bootloader-id=GRUB
 
