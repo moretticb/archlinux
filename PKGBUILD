@@ -26,6 +26,7 @@ package_moretticb-base() {
         awesome-terminal-fonts
         baobab
         base
+        base-devel
         bc
         beep
         bind
