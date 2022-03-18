@@ -12,28 +12,28 @@ exec 2> >(tee "stderr.log")
 readonly REPO_URL="https://github.com/moretticb/archlinux/releases/download/v0.0.1-alpha"
 readonly MIRRORLIST_URL="https://archlinux.org/mirrorlist/?country=BR&protocol=http&protocol=https&use_mirror_status=on"
 
-#pacman -Sy --noconfirm pacman-contrib dialog
-#
-#echo "Updating mirror list"
-#curl -s "$MIRRORLIST_URL" | \
-#    sed -e 's/^#Server/Server/' -e '/^#/d' | \
-#    rankmirrors -n 5 - > /etc/pacman.d/mirrorlist
-#
-## Get infomation from user
-#readonly hostname=$(dialog --stdout --inputbox "Enter hostname" 0 0) || exit 1
-#clear
-#: "${hostname:?'hostname cannot be empty'}"
-#
-#readonly user=$(dialog --stdout --inputbox "Enter admin username" 0 0) || exit 1
-#clear
-#: "${user:?'user cannot be empty'}"
-#
-#password=$(dialog --stdout --passwordbox "Enter admin password" 0 0) || exit 1
-#clear
-#: "${password:?'password cannot be empty'}"
-#password_confirmation=$(dialog --stdout --passwordbox "Enter admin password again" 0 0) || exit 1
-#clear
-#[[ "$password" == "$password_confirmation" ]] || ( echo "Passwords did not match"; exit 1; )
+pacman -Sy --noconfirm pacman-contrib dialog
+
+echo "Updating mirror list"
+curl -s "$MIRRORLIST_URL" | \
+    sed -e 's/^#Server/Server/' -e '/^#/d' | \
+    rankmirrors -n 5 - > /etc/pacman.d/mirrorlist
+
+# Get infomation from user
+readonly hostname=$(dialog --stdout --inputbox "Enter hostname" 0 0) || exit 1
+clear
+: "${hostname:?'hostname cannot be empty'}"
+
+readonly user=$(dialog --stdout --inputbox "Enter admin username" 0 0) || exit 1
+clear
+: "${user:?'user cannot be empty'}"
+
+password=$(dialog --stdout --passwordbox "Enter admin password" 0 0) || exit 1
+clear
+: "${password:?'password cannot be empty'}"
+password_confirmation=$(dialog --stdout --passwordbox "Enter admin password again" 0 0) || exit 1
+clear
+[[ "$password" == "$password_confirmation" ]] || ( echo "Passwords did not match"; exit 1; )
 
 
 readonly devicelist=$(lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop" | tac)
@@ -41,16 +41,23 @@ readonly devicelist=$(lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop"
 readonly device=$(dialog --stdout --menu "Select installation disk" 0 0 0 ${devicelist}) || exit 1
 clear
 
-#cfdisk $device
+
+readonly dumpfile=$(dialog --stdout --title "Select a cfdisk dump file or press ESC to manage partitions manually" --fselect . 15 60)
+if [ "$?" -gt "0" ]; then
+	cfdisk $device
+else
+	sfdisk $device < $dumpfile
+fi
 
 readonly partlist=$(lsblk | grep $(echo $device | cut -d"/" -f 3) | grep part | sed "s/[^0-9a-zA-Z ]//g" | awk '//{print $1, $4}')
 readonly ospart=$(dialog --stdout --menu "Select partition to install Arch Linux" 0 0 0 ${partlist}) || exit 1
 readonly swappart=$(dialog --stdout --menu "Select swap partition" 0 0 0 ${partlist}) || exit 1
 readonly efipart=$(dialog --stdout --menu "Select EFI partition" 0 0 0 ${partlist}) || exit 1
 
-echo "install linux on $ospart and efi part is $efipart and swap part is $swappart"
 
 clear
+
+echo "install linux on $ospart and efi part is $efipart and swap part is $swappart"
 
 exit 1
 
