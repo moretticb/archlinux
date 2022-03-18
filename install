@@ -43,7 +43,14 @@ clear
 
 #cfdisk $device
 
-readonly partlist=$(lsblk | grep $(echo $device | cut -d"/" -f 3) | grep part | sed "s/[^0-9a-z]//g") | awk '//{print $1, $4}'
+readonly partlist=$(lsblk | grep $(echo $device | cut -d"/" -f 3) | grep part | sed "s/[^0-9a-zA-Z ]//g" | awk '//{print $1, $4}')
+readonly ospart=$(dialog --stdout --menu "Select partition to install Arch Linux" 0 0 0 ${partlist}) || exit 1
+readonly swappart=$(dialog --stdout --menu "Select swap partition" 0 0 0 ${partlist}) || exit 1
+readonly efipart=$(dialog --stdout --menu "Select EFI partition" 0 0 0 ${partlist}) || exit 1
+
+echo "install linux on $ospart and efi part is $efipart and swap part is $swappart"
+
+clear
 
 exit 1
 
