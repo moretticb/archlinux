@@ -1,0 +1,5 @@
+dialog: /usr/lib/libncursesw.so.6: no version information available (required by dialog)
+dialog: /usr/lib/libncursesw.so.6: no version information available (required by dialog)
+dialog: /usr/lib/libncursesw.so.6: no version information available (required by /usr/lib/libdialog.so.15)
+dialog: /usr/lib/libncursesw.so.6: no version information available (required by /usr/lib/libdialog.so.15)
+dialog: /usr/lib/libncursesw.so.6: no version information available (required by /usr/lib/libdialog.so.15)
