@@ -15,6 +15,7 @@ package_moretticb-base() {
     install=moretticb-base.install
 
     depends=(
+        alacritty
         adobe-source-code-pro-fonts
         adwaita-icon-theme
         alacritty
@@ -26,7 +27,6 @@ package_moretticb-base() {
         awesome-terminal-fonts
         baobab
         base
-        base-devel
         bc
         beep
         bind
@@ -102,7 +102,6 @@ package_moretticb-base() {
         make
         man-db
         man-pages
-        masterpdfeditor-free
         mdadm
         meld
         mesa
@@ -110,7 +109,6 @@ package_moretticb-base() {
         ncdu
         ncurses
         neofetch
-        nerd-fonts-mononoki
         netctl
         networkmanager
         network-manager-applet
@@ -171,7 +169,6 @@ package_moretticb-base() {
         sudo
         sysfsutils
         tcl
-        termite
         terraform
         texinfo
         thunar
@@ -181,7 +178,6 @@ package_moretticb-base() {
         tree
         ttf-font-awesome
         ttf-inconsolata
-        ttf-ms-fonts
         unrar
         unzip
         upx
@@ -220,7 +216,6 @@ package_moretticb-base() {
         xorg-xrandr
         xorg-xset
         xsel
-        yaourt
         yarn
         yq
         zathura
