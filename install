@@ -5,8 +5,8 @@ set -euEo pipefail
 trap 'echo "${BASH_SOURCE:-unknown}:${LINENO:-unknown}: $BASH_COMMAND";' ERR
 
 # Set up logging
-exec 1> >(tee "stdout.log")
-exec 2> >(tee "stderr.log")
+#exec 1> >(tee "stdout.log")
+#exec 2> >(tee "stderr.log")
 
 # REPO_URL="https://github.com/moretticb/archlinux/releases/latest/download"
 readonly REPO_URL="https://github.com/moretticb/archlinux/releases/download/v0.0.1-alpha"
@@ -43,11 +43,18 @@ clear
 
 
 readonly dumpfile=$(dialog --stdout --title "Select a cfdisk dump file or press ESC to manage partitions manually" --fselect . 15 60)
-if [ "$?" -gt "0" ]; then
-	cfdisk $device
+clear
+if test -f "$dumpfile"; then
+	#sfdisk $device < $dumpfile
+	echo "dumping $dumpfile"
 else
-	sfdisk $device < $dumpfile
+	echo "Managing $device partitions manually with cfdisk..."
+	sleep 1
+	cfdisk $device
 fi
+
+exit 1
+
 
 readonly partlist=$(lsblk | grep $(echo $device | cut -d"/" -f 3) | grep part | sed "s/[^0-9a-zA-Z ]//g" | awk '//{print $1, $4}')
 readonly ospart=$(dialog --stdout --menu "Select partition to install Arch Linux" 0 0 0 ${partlist}) || exit 1
