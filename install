@@ -45,28 +45,21 @@ clear
 readonly dumpfile=$(dialog --stdout --title "Select a cfdisk dump file or press ESC to manage partitions manually" --fselect . 15 60)
 clear
 if test -f "$dumpfile"; then
-	#sfdisk $device < $dumpfile
-	echo "dumping $dumpfile"
+	echo "Dumping $dumpfile"
+	sleep 1
+	sfdisk $device < $dumpfile
 else
 	echo "Managing $device partitions manually with cfdisk..."
 	sleep 1
 	cfdisk $device
 fi
 
-exit 1
-
-
-readonly partlist=$(lsblk | grep $(echo $device | cut -d"/" -f 3) | grep part | sed "s/[^0-9a-zA-Z ]//g" | awk '//{print $1, $4}')
+readonly partlist=$(fdisk -l | grep $(echo $device | cut -d"/" -f 3) | awk '//{print $1, $5, $7, $8, $9}')
+#readonly partlist=$(lsblk | grep $(echo $device | cut -d"/" -f 3) | grep part | sed "s/[^0-9a-zA-Z .]//g" | awk '//{print $1, $4}')
 readonly ospart=$(dialog --stdout --menu "Select partition to install Arch Linux" 0 0 0 ${partlist}) || exit 1
 readonly swappart=$(dialog --stdout --menu "Select swap partition" 0 0 0 ${partlist}) || exit 1
 readonly efipart=$(dialog --stdout --menu "Select EFI partition" 0 0 0 ${partlist}) || exit 1
 
-
-clear
-
-echo "install linux on $ospart and efi part is $efipart and swap part is $swappart"
-
-exit 1
 
 timedatectl set-ntp true
 
