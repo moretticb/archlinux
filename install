@@ -54,7 +54,7 @@ else
 	cfdisk $device
 fi
 
-readonly partlist=$(fdisk -l | grep $(echo $device | cut -d"/" -f 3) | awk '//{print $1, $5, $7, $8, $9}')
+readonly partlist=$(fdisk -l | awk '//{print $1,$5"__"$7"__"$8"__"$9}' | grep $(echo $device | cut -d"/" -f 3))
 #readonly partlist=$(lsblk | grep $(echo $device | cut -d"/" -f 3) | grep part | sed "s/[^0-9a-zA-Z .]//g" | awk '//{print $1, $4}')
 readonly ospart=$(dialog --stdout --menu "Select partition to install Arch Linux" 0 0 0 ${partlist}) || exit 1
 readonly swappart=$(dialog --stdout --menu "Select swap partition" 0 0 0 ${partlist}) || exit 1
