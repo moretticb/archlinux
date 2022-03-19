@@ -1,6 +1,12 @@
 #!/bin/bash
 # WARNING: this script will destroy data on the selected disk.
 
+
+# Update the system clock
+timedatectl set-ntp true
+
+
+
 set -euEo pipefail
 trap 'echo "${BASH_SOURCE:-unknown}:${LINENO:-unknown}: $BASH_COMMAND";' ERR
 
@@ -42,6 +48,8 @@ readonly device=$(dialog --stdout --menu "Select installation disk" 0 0 0 ${devi
 clear
 
 
+
+# Partition the disks
 readonly dumpfile=$(dialog --stdout --title "Select a cfdisk dump file or press ESC to manage partitions manually" --fselect . 15 60)
 clear
 if test -f "$dumpfile"; then
@@ -61,41 +69,61 @@ readonly swappart=$(dialog --stdout --menu "Select swap partition" 0 0 0 ${partl
 readonly efipart=$(dialog --stdout --menu "Select EFI partition" 0 0 0 ${partlist}) || exit 1
 
 
-timedatectl set-ntp true
 
-# Setup the disk and partitions
-readonly efi_size=128
-readonly efi_end=$(( efi_size + 1 ))
-readonly swap_size=1024
-readonly swap_end=$(( swap_size + efi_size + 1 ))
 
-parted --script "${device}" -- mklabel gpt \
-  mkpart ESP fat32 1Mib ${efi_end}MiB \
-  set 1 boot on \
-  mkpart primary linux-swap ${efi_end}MiB ${swap_end}MiB \
-  mkpart primary ext4 ${swap_end}MiB 100%
+# Format the partitions
+mkfs.ext4 ${ospart}
 
-# Simple globbing was not enough as on one device I needed to match /dev/mmcblk0p1
-# but not /dev/mmcblk0boot1 while being able to match /dev/sda1 on other devices.
-# shellcheck disable=SC2010
-readonly part_boot="$(ls "${device}"* | grep -E "^${device}p?1$")"
-# shellcheck disable=SC2010
-readonly part_swap="$(ls "${device}"* | grep -E "^${device}p?2$")"
-# shellcheck disable=SC2010
-readonly part_root="$(ls "${device}"* | grep -E "^${device}p?3$")"
+# EFI partition remains untouched, since windows installer already took care of that
 
-wipefs "${part_boot}"
-wipefs "${part_swap}"
-wipefs "${part_root}"
+# initializing and enabling swap
+mkswap ${swappart}
+swapon ${swappart}
 
-mkfs.vfat -F32 "${part_boot}"
-mkswap "${part_swap}"
-mkfs.f2fs -f "${part_root}"
 
-swapon "${part_swap}"
-mount "${part_root}" /mnt
-mkdir /mnt/boot
-mount "${part_boot}" /mnt/boot
+
+# mounting root partition
+mount ${ospart} /mnt
+
+
+
+
+ ## Setup the disk and partitions
+#readonly efi_size=128
+#readonly efi_end=$(( efi_size + 1 ))
+#readonly swap_size=1024
+#readonly swap_end=$(( swap_size + efi_size + 1 ))
+#
+#parted --script "${device}" -- mklabel gpt \
+#  mkpart ESP fat32 1Mib ${efi_end}MiB \
+#  set 1 boot on \
+#  mkpart primary linux-swap ${efi_end}MiB ${swap_end}MiB \
+#  mkpart primary ext4 ${swap_end}MiB 100%
+#
+## Simple globbing was not enough as on one device I needed to match /dev/mmcblk0p1
+## but not /dev/mmcblk0boot1 while being able to match /dev/sda1 on other devices.
+## shellcheck disable=SC2010
+#readonly part_boot="$(ls "${device}"* | grep -E "^${device}p?1$")"
+## shellcheck disable=SC2010
+#readonly part_swap="$(ls "${device}"* | grep -E "^${device}p?2$")"
+## shellcheck disable=SC2010
+#readonly part_root="$(ls "${device}"* | grep -E "^${device}p?3$")"
+#
+#wipefs "${part_boot}"
+#wipefs "${part_swap}"
+#wipefs "${part_root}"
+#
+#mkfs.vfat -F32 "${part_boot}"
+#mkswap "${part_swap}"
+#mkfs.f2fs -f "${part_root}"
+#
+#swapon "${part_swap}"
+#mount "${part_root}" /mnt
+#mkdir /mnt/boot
+#mount "${part_boot}" /mnt/boot
+
+
+
 
 # Install and configure the basic system
 cat >>/etc/pacman.conf <<EOF
@@ -104,9 +132,42 @@ SigLevel = Optional TrustAll
 Server = $REPO_URL
 EOF
 
+# Install essential packages
 pacstrap /mnt moretticb-base
+
+
+# Generate fstab
 genfstab -t PARTUUID /mnt >> /mnt/etc/fstab
+
+
+
+# Setting time zone
+readonly timezone=$(dialog --stdout --title "Set a timezone" --fselect /mnt/usr/share/zoneinfo/ 15 70) || exit 1
+clear
+ln -sf ${timezone} /mnt/etc/localtime
+
+
+# Running hwclock according to the selected timezone
+arch-chroot /mnt hwclock --systohc
+
+
+# Localization
+locales=$(dialog --stdout --checklist "Select en_US.UTF-8 UTF-8 and other needed locales" 0 0 0 $(cat /mnt/etc/locale.gen | grep -E "^#[a-z]{2}" | cut -d"#" -f 2 | sed "s/[ ]*$/ off/g")) || exit 1
+clear
+
+cat /mnt/etc/locale.gen | grep -E $(echo $locales | sed "s/ /|/g") | grep "#" | cut -d"#" -f 2 > /tmp/temp_locales.txt
+cat /tmp/temp_locales.txt >> /mnt/etc/locale.gen
+
+arch-chroot /mnt locale-gen
+
+echo "LANG=$(cat /tmp/temp_locales.txt | head -1 | cut -d" " -f 1)" > /mnt/etc/locale.conf
+#echo "LANG=en_US.UTF-8" > /mnt/etc/locale.conf
+
+
+
+# Setting hostname
 echo "${hostname}" > /mnt/etc/hostname
+
 
 cat >>/mnt/etc/pacman.conf <<EOF
 [moretticb]
@@ -129,9 +190,8 @@ EOF
 #options  root=PARTUUID=$(blkid -s PARTUUID -o value "$part_root") rw
 #EOF
 
-echo "LANG=en_US.UTF-8" > /mnt/etc/locale.conf
 
-arch-chroot /mnt useradd -mU -s /bin/bash -G wheel,docker "$user"
+arch-chroot /mnt useradd -mU -s /bin/bash -G wheel "$user"
 
 arch-chroot /mnt chsh -s /bin/bash root
 arch-chroot /mnt chsh -s /bin/bash "$user"
@@ -140,17 +200,24 @@ echo "$user:$password" | chpasswd --root /mnt
 echo "root:$password" | chpasswd --root /mnt
 
 arch-chroot /mnt systemctl enable NetworkManager.service
-arch-chroot /mnt systemctl enable docker.service
 
 
 
 
 
+# Bootloader
 
-echo Y | arch-chroot /mnt pacman -S grub efibootmgr
-echo Y | arch-chroot /mnt pacman -S os-prober
+mkdir -p /mnt/boot/efi
+mount ${efipart} /mnt/boot/efi
 
-arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/efi/ --bootloader-id=GRUB
+
+arch-chroot /mnt pacman -S --noconfirm grub efibootmgr mtools os-prober
+
+arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot/efi/ --bootloader-id=GRUB --recheck
 
 arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
+
+
+# halting, so USB installation device can be removed prior to rebooting
+halt
 
