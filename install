@@ -199,6 +199,11 @@ arch-chroot /mnt chsh -s /bin/bash "$user"
 echo "$user:$password" | chpasswd --root /mnt
 echo "root:$password" | chpasswd --root /mnt
 
+
+
+# install drivers here (curl to a specific script for a specific computer)
+
+
 arch-chroot /mnt systemctl enable NetworkManager.service
 
 
@@ -212,6 +217,9 @@ mount ${efipart} /mnt/boot/efi
 
 
 arch-chroot /mnt pacman -S --noconfirm grub efibootmgr mtools os-prober
+
+# enabling os-prober to work at grub-mkconfig step so windows can also be detected
+echo "DISABLE_OS_PROBER=false" >> /mnt/etc/default/grub
 
 arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot/efi/ --bootloader-id=GRUB --recheck
 

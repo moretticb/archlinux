@@ -94,6 +94,7 @@ package_moretticb-base() {
         links
         linux
         linux-firmware
+        linux-headers
         logrotate
         lolcat
         lsof
@@ -108,6 +109,7 @@ package_moretticb-base() {
         mtr
         ncdu
         ncurses
+        dialog
         neofetch
         netctl
         networkmanager
