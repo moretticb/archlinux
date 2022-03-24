@@ -1,4 +1,0 @@
-# Drivers for xps13 9343
-
-# wifi (assuming linux-headers has already been installed)
-pacman -S --noconfirm broadcom-wl

@@ -15,7 +15,9 @@ package_moretticb-base() {
     install=moretticb-base.install
 
     depends=(
+        acpi
         alacritty
+        termite
         adobe-source-code-pro-fonts
         adwaita-icon-theme
         alacritty
@@ -74,6 +76,8 @@ package_moretticb-base() {
         gzip
         htop
         hwdata
+        lxappearance
+        materia-gtk-theme
         i3blocks
         i3-gaps
         i3lock
@@ -112,6 +116,7 @@ package_moretticb-base() {
         dialog
         neofetch
         netctl
+        wireless_tools
         networkmanager
         network-manager-applet
         networkmanager-openconnect
@@ -177,6 +182,7 @@ package_moretticb-base() {
         totem
         traceroute
         transmission-gtk
+	transmission-cli
         tree
         ttf-font-awesome
         ttf-inconsolata

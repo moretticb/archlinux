@@ -1,0 +1,55 @@
+#!/bin/bash
+
+
+# XPS13 9343
+
+# wifi driver (assuming linux-headers has already been installed)
+pacman -S --noconfirm broadcom-wl
+
+# End of XPS13 9343
+
+
+
+
+
+# Installing yaourt
+# https://ostechnix.com/install-yaourt-arch-linux/
+git clone https://aur.archlinux.org/package-query.git
+cd package-query/
+makepkg -si
+cd ..
+
+git clone https://aur.archlinux.org/yaourt.git
+cd yaourt/
+makepkg -si
+cd ..
+
+sudo rm -dR yaourt/ package-query/
+
+
+
+
+# Installing font with Powerline symbols for i3blocks bar
+wget https://raw.githubusercontent.com/ryanoasis/powerline-extra-symbols/master/patched-fonts/DroidSansMonoForPowerlinePlusNerdFileTypesMono.otf
+sudo mkdir -p /usr/share/fonts/OTF
+sudo mv ./DroidSansMonoForPowerlinePlusNerdFileTypesMono.otf /usr/share/fonts/OTF/
+sudo fc-cache -fv
+
+
+
+# installing AUR packages
+packages=(
+	masterpdfeditor-free
+	nerd-fonts-jetbrains-mono
+	ttf-ms-fonts
+)
+
+for pkg in ${packages[@]}; do
+	echo "Installing $pkg"
+	yaourt -S $pkg --noconfirm
+done
+
+
+
+
+
