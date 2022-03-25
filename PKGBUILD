@@ -17,7 +17,6 @@ package_moretticb-base() {
     depends=(
         acpi
         alacritty
-        termite
         adobe-source-code-pro-fonts
         adwaita-icon-theme
         alacritty

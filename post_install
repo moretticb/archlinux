@@ -46,6 +46,7 @@ sudo fc-cache -fv
 
 # installing AUR packages
 packages=(
+	termite
 	masterpdfeditor-free
 	nerd-fonts-jetbrains-mono
 	ttf-ms-fonts
