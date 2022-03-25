@@ -1,19 +1,26 @@
 #!/bin/bash
 
+cd /home/duzas
 
-# XPS13 9343
+# Downloading dotfiles and tools
+git clone https://github.com/moretticb/linuxStuff.git
+~/linuxStuff/install.sh
 
-# wifi driver (assuming linux-headers has already been installed)
-pacman -S --noconfirm broadcom-wl
 
-# End of XPS13 9343
+# Downloading collection of wallpapers
+git clone https://gitlab.com/dwt1/wallpapers.git
 
+
+# Installing bash-it
+git clone --depth=1 https://github.com/Bash-it/bash-it.git ~/.bash_it
+~/.bash_it/install.sh --no-modify-config
 
 
 
 
 # Installing yaourt
 # https://ostechnix.com/install-yaourt-arch-linux/
+# https://nanxiao.me/en/fix-error-while-loading-shared-libraries-libalpm-so-10-on-archlinux/
 git clone https://aur.archlinux.org/package-query.git
 cd package-query/
 makepkg -si

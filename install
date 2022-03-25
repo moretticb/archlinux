@@ -204,16 +204,23 @@ echo "root:$password" | chpasswd --root /mnt
 
 
 
-# installing drivers here
-curl -sL "https://raw.githubusercontent.com/$(echo ${REPO_URL} | cut -d'/' -f 4,5)/develop/install_drivers" | bash
 
+# XPS13 9343 DRIVERS
 
-# installing dotfiles and scripts
+# wifi driver (assuming linux-headers has already been installed)
+pacman -S --noconfirm broadcom-wl
+
+# End of XPS13 9343 DRIVERS
 
 
 
 arch-chroot /mnt systemctl enable NetworkManager.service
 
+
+
+
+# downloading post install script, leaving at user home directory
+curl -sL "https://raw.githubusercontent.com/$(echo ${REPO_URL} | cut -d'/' -f 4,5)/develop/post_install" > /mnt/home/$user
 
 
 

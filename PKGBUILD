@@ -151,8 +151,12 @@ package_moretticb-base() {
         playerctl
         powerline-fonts
         protobuf
+        bluez
+        bluez-utils
+        bluez-tools
         pulseaudio
         pulseaudio-alsa
+        pulseaudio-bluetooth
         python
         python2
         python-pandas
@@ -175,6 +179,7 @@ package_moretticb-base() {
         staticcheck
         sudo
         sysfsutils
+        r
         tcl
         terraform
         texinfo
