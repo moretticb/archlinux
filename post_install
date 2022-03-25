@@ -49,6 +49,7 @@ packages=(
 	masterpdfeditor-free
 	nerd-fonts-jetbrains-mono
 	ttf-ms-fonts
+	wine-stable
 )
 
 for pkg in ${packages[@]}; do
