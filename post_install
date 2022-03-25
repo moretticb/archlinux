@@ -2,6 +2,9 @@
 
 cd /home/duzas
 
+sudo pacman -Syy
+sudo pacman -S archlinux-keyring
+
 # Downloading dotfiles and tools
 git clone https://github.com/moretticb/linuxStuff.git
 ~/linuxStuff/install.sh
@@ -23,12 +26,12 @@ git clone --depth=1 https://github.com/Bash-it/bash-it.git ~/.bash_it
 # https://nanxiao.me/en/fix-error-while-loading-shared-libraries-libalpm-so-10-on-archlinux/
 git clone https://aur.archlinux.org/package-query.git
 cd package-query/
-makepkg -si
+makepkg -si --noconfirm
 cd ..
 
 git clone https://aur.archlinux.org/yaourt.git
 cd yaourt/
-makepkg -si
+makepkg -si --noconfirm
 cd ..
 
 sudo rm -dR yaourt/ package-query/

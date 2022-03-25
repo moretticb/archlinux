@@ -170,9 +170,16 @@ echo "${hostname}" > /mnt/etc/hostname
 
 
 cat >>/mnt/etc/pacman.conf <<EOF
+
 [moretticb]
 SigLevel = Optional TrustAll
 Server = $REPO_URL
+
+[multilib-testing]
+Include = /etc/pacman.d/mirrorlist
+
+[multilib]
+Include = /etc/pacman.d/mirrorlist
 EOF
 
 
@@ -208,7 +215,7 @@ echo "root:$password" | chpasswd --root /mnt
 # XPS13 9343 DRIVERS
 
 # wifi driver (assuming linux-headers has already been installed)
-pacman -S --noconfirm broadcom-wl
+arch-chroot /mnt pacman -S --noconfirm broadcom-wl
 
 # End of XPS13 9343 DRIVERS
 
