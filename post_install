@@ -2,7 +2,7 @@
 
 cd /home/duzas
 
-eval "$(echo dialog --stdout --radiolist "\"Connect to a network\"" 0 0 0 $(nmcli device wifi list | awk -F" {2,}" '{print "\"" $3 "\"" "\"" $8,$9 "\"" " off"}')) > /tmp/dialogout.txt"
+eval "$(echo dialog --stdout --radiolist "\"Connect to a network\"" 0 0 0 $(nmcli device wifi list | awk -F" {2,}" '{print "\"" $3 "\"" " \"" $8,$9 "\"" " off"}')) > /tmp/dialogout.txt"
 wifipwd=$(dialog --stdout --title "Connecting to $(cat /tmp/dialogout.txt)" --clear --passwordbox "Enter wifi password" 0 0)
 
 nmcli device wifi connect "$(cat /tmp/dialogout.txt)" password "$wifipwd"
