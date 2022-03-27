@@ -19,6 +19,7 @@ package_moretticb-base() {
         alacritty
         adobe-source-code-pro-fonts
         adwaita-icon-theme
+	gucharmap
         alacritty
         alsa-utils
         arandr

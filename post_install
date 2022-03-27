@@ -8,9 +8,12 @@ wifipwd=$(dialog --stdout --title "Connecting to $(cat /tmp/dialogout.txt)" --cl
 nmcli device wifi connect "$(cat /tmp/dialogout.txt)" password "$wifipwd"
 
 
+# uncommenting setting that makes pacman download 5 packages at a time
+sudo sed -ri "/Parallel/s/^#//g" /etc/pacman.conf
+
 
 sudo pacman -Syy
-sudo pacman -S archlinux-keyring
+sudo pacman -S archlinux-keyring --noconfirm
 
 # Downloading dotfiles and tools
 git clone https://github.com/moretticb/linuxStuff.git
