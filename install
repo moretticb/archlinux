@@ -172,16 +172,19 @@ arch-chroot /mnt hwclock --systohc
 
 
 # Localization
-locales=$(dialog --stdout --checklist "Select en_US.UTF-8 UTF-8 and other needed locales" 0 0 0 $(cat /mnt/etc/locale.gen | grep -E "^#[a-z]{2}" | cut -d"#" -f 2 | sed "s/[ ]*$/ off/g")) || exit 1
-clear
+#locales=$(dialog --stdout --checklist "Select en_US.UTF-8 UTF-8 and other needed locales" 0 0 0 $(cat /mnt/etc/locale.gen | grep -E "^#[a-z]{2}" | cut -d"#" -f 2 | sed "s/[ ]*$/ off/g")) || exit 1
+#clear
+#
+#cat /mnt/etc/locale.gen | grep -E $(echo $locales | sed "s/ /|/g") | grep "#" | cut -d"#" -f 2 > /tmp/temp_locales.txt
+#cat /tmp/temp_locales.txt >> /mnt/etc/locale.gen
+sed 's/#pt_BR.UTF-8/pt_BR.UTF-8/' -i /mnt/etc/locale.gen
+sed 's/#en_US.UTF-8/en_US.UTF-8/' -i /mnt/etc/locale.gen
 
-cat /mnt/etc/locale.gen | grep -E $(echo $locales | sed "s/ /|/g") | grep "#" | cut -d"#" -f 2 > /tmp/temp_locales.txt
-cat /tmp/temp_locales.txt >> /mnt/etc/locale.gen
+#echo "LANG=$(cat /tmp/temp_locales.txt | head -1 | cut -d" " -f 1)" > /mnt/etc/locale.conf
+echo "LANG=en_US.UTF-8" > /mnt/etc/locale.conf
+
 
 arch-chroot /mnt locale-gen
-
-echo "LANG=$(cat /tmp/temp_locales.txt | head -1 | cut -d" " -f 1)" > /mnt/etc/locale.conf
-#echo "LANG=en_US.UTF-8" > /mnt/etc/locale.conf
 
 
 
@@ -271,6 +274,10 @@ echo "GRUB_DISABLE_OS_PROBER=false" >> /mnt/etc/default/grub
 arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot/efi/ --bootloader-id=GRUB --recheck
 
 arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
+
+
+echo -e "#!/bin/bash\n\n~/post_install" > /home/$user/.bashrc
+arch-chroot /mnt chmod +x /home/$user/.bashrc
 
 
 echo "Installation finished."
