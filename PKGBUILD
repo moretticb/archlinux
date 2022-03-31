@@ -96,6 +96,7 @@ package_moretticb-base() {
         libreoffice-fresh
         libtool
         links
+        lynx
         linux
         linux-firmware
         linux-headers
