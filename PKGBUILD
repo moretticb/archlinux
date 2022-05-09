@@ -38,6 +38,7 @@ package_moretticb-base() {
         bzip2
         calc
         cantarell-fonts
+        chntpw
         chromium
         code
         composer
