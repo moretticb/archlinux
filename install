@@ -5,6 +5,8 @@
 # Update the system clock
 timedatectl set-ntp true
 
+
+pacman -Sy --noconfirm pacman-contrib dialog
 action=$(dialog --stdout --menu "What to do?" 0 0 0 install "Arch Linux" repair "bootloader") || exit 1
 
 
@@ -20,8 +22,6 @@ readonly REPO_URL="https://github.com/moretticb/archlinux/releases/download/v0.0
 readonly MIRRORLIST_URL="https://archlinux.org/mirrorlist/?country=BR&protocol=http&protocol=https&use_mirror_status=on"
 
 if [ "$action" = "install" ]; then
-
-	pacman -Sy --noconfirm pacman-contrib dialog
 
 	echo "Updating mirror list"
 	curl -s "$MIRRORLIST_URL" | \
@@ -139,12 +139,12 @@ if [ "$action" = "install" ]; then
 
 
 
-	# Install and configure the basic system
-	cat >>/etc/pacman.conf <<EOF
-	[moretticb]
-	SigLevel = Optional TrustAll
-	Server = $REPO_URL
-	EOF
+# Install and configure the basic system
+cat >>/etc/pacman.conf <<EOF
+[moretticb]
+SigLevel = Optional TrustAll
+Server = $REPO_URL
+EOF
 
 	# Install essential packages
 	#pacstrap /mnt moretticb-base
@@ -195,18 +195,18 @@ if [ "$action" = "install" ]; then
 	echo "${hostname}" > /mnt/etc/hostname
 
 
-	cat >>/mnt/etc/pacman.conf <<EOF
+cat >>/mnt/etc/pacman.conf <<EOF
 
-	[moretticb]
-	SigLevel = Optional TrustAll
-	Server = $REPO_URL
+[moretticb]
+SigLevel = Optional TrustAll
+Server = $REPO_URL
 
-	[multilib-testing]
-	Include = /etc/pacman.d/mirrorlist
+[multilib-testing]
+Include = /etc/pacman.d/mirrorlist
 
-	[multilib]
-	Include = /etc/pacman.d/mirrorlist
-	EOF
+[multilib]
+Include = /etc/pacman.d/mirrorlist
+EOF
 
 	# refreshing urls from multilib and multilib-testing
 	arch-chroot /mnt pacman -Syy
