@@ -19,7 +19,7 @@ trap 'echo "${BASH_SOURCE:-unknown}:${LINENO:-unknown}: $BASH_COMMAND";' ERR
 
 # REPO_URL="https://github.com/moretticb/archlinux/releases/latest/download"
 readonly REPO_URL="https://github.com/moretticb/archlinux/releases/download/v0.0.1-alpha"
-readonly MIRRORLIST_URL="https://archlinux.org/mirrorlist/?country=BR&protocol=http&protocol=https&use_mirror_status=on"
+readonly MIRRORLIST_URL="https://archlinux.org/mirrorlist/?country=NL&protocol=http&protocol=https&use_mirror_status=on"
 
 if [ "$action" = "install" ]; then
 
@@ -51,19 +51,33 @@ if [ "$action" = "install" ]; then
 	clear
 
 
+	# steps for the partition scheme using parted:
+	# - remove them all with `rm X`, where X is the number of the partition
+	# - Create boot partition:
+	#   mkpart
+	#   primary
+	#   ext2
+	#   40
+	#   240
+	#   
+	# - Flag boot partition as boot:
+	#   set 1 boot on
+	#   
+	# - Create swap partition
+	#   mkpart
+	#   primary
+	#   linux-swap(v1)
+	#   240
+	#   6240
+	#   
+	# - Create root partition
+	#   mkpart
+	#   primary
+	#   ext4
+	#   6240
+	#   121G
+	#   
 
-	# Partition the disks
-	readonly dumpfile=$(dialog --stdout --title "Select a cfdisk dump file or press ESC to manage partitions manually" --fselect . 15 60)
-	clear
-	if test -f "$dumpfile"; then
-		echo "Dumping $dumpfile"
-		sleep 1
-		sfdisk $device < $dumpfile
-	else
-		echo "Managing $device partitions manually with cfdisk..."
-		sleep 1
-		cfdisk $device
-	fi
 
 	#readonly partlist=$(fdisk -l | awk '//{print $1,$5"__"$7"__"$8"__"$9}' | grep $(echo $device | cut -d"/" -f 3))
 	#readonly partlist=$(lsblk | grep $(echo $device | cut -d"/" -f 3) | grep part | sed "s/[^0-9a-zA-Z .]//g" | awk '//{print $1, $4}')
@@ -83,72 +97,26 @@ if [ "$action" = "install" ]; then
 
 
 
-
-
 	# Format the partitions
 	mkfs.ext4 ${ospart}
+	mkfs.fat -F 32 ${efipart}
 
-	# EFI partition remains untouched, since windows installer already took care of that
 
 	# initializing and enabling swap
 	mkswap ${swappart}
-	swapon ${swappart}
-
 
 
 	# mounting root partition
 	mount ${ospart} /mnt
+	mkdir /mnt/boot
+	mount ${efipart} /mnt/boot
 
 
+	swapon ${swappart}
 
-
-	 ## Setup the disk and partitions
-	#readonly efi_size=128
-	#readonly efi_end=$(( efi_size + 1 ))
-	#readonly swap_size=1024
-	#readonly swap_end=$(( swap_size + efi_size + 1 ))
-	#
-	#parted --script "${device}" -- mklabel gpt \
-	#  mkpart ESP fat32 1Mib ${efi_end}MiB \
-	#  set 1 boot on \
-	#  mkpart primary linux-swap ${efi_end}MiB ${swap_end}MiB \
-	#  mkpart primary ext4 ${swap_end}MiB 100%
-	#
-	## Simple globbing was not enough as on one device I needed to match /dev/mmcblk0p1
-	## but not /dev/mmcblk0boot1 while being able to match /dev/sda1 on other devices.
-	## shellcheck disable=SC2010
-	#readonly part_boot="$(ls "${device}"* | grep -E "^${device}p?1$")"
-	## shellcheck disable=SC2010
-	#readonly part_swap="$(ls "${device}"* | grep -E "^${device}p?2$")"
-	## shellcheck disable=SC2010
-	#readonly part_root="$(ls "${device}"* | grep -E "^${device}p?3$")"
-	#
-	#wipefs "${part_boot}"
-	#wipefs "${part_swap}"
-	#wipefs "${part_root}"
-	#
-	#mkfs.vfat -F32 "${part_boot}"
-	#mkswap "${part_swap}"
-	#mkfs.f2fs -f "${part_root}"
-	#
-	#swapon "${part_swap}"
-	#mount "${part_root}" /mnt
-	#mkdir /mnt/boot
-	#mount "${part_boot}" /mnt/boot
-
-
-
-
-# Install and configure the basic system
-cat >>/etc/pacman.conf <<EOF
-[moretticb]
-SigLevel = Optional TrustAll
-Server = $REPO_URL
-EOF
 
 	# Install essential packages
-	#pacstrap /mnt moretticb-base
-	while pacstrap /mnt moretticb-base; ret=$?; [ $ret -ne 0 ]; do
+	while pacstrap /mnt base base-devel linux linux-firmware; ret=$?; [ $ret -ne 0 ]; do
 		dialog --title "unable to pacstrap" --backtitle "pacstrap error" --yesno "Do you want to try again?" 0 0
 		if [ "$?" -ne "0" ]; then
 			exit 1
@@ -197,10 +165,6 @@ EOF
 
 cat >>/mnt/etc/pacman.conf <<EOF
 
-[moretticb]
-SigLevel = Optional TrustAll
-Server = $REPO_URL
-
 [multilib-testing]
 Include = /etc/pacman.d/mirrorlist
 
@@ -246,7 +210,7 @@ EOF
 	# XPS13 9343 DRIVERS
 
 	# wifi driver (assuming linux-headers has already been installed)
-	arch-chroot /mnt pacman -S --noconfirm broadcom-wl
+	arch-chroot /mnt pacman -S --noconfirm broadcom-wl networkmanager bluez bluez-tools bluez-utils grub efibootmgr
 
 	# End of XPS13 9343 DRIVERS
 
@@ -255,9 +219,7 @@ EOF
 	arch-chroot /mnt systemctl enable NetworkManager.service
 
 
-	arch-chroot /mnt systemctl enable bluetooth.service
-	sed 's/#AutoEnable=false/AutoEnable=true/' -i /mnt/etc/bluetooth/main.conf
-
+	# add bluetooth config here I removed before
 
 
 
@@ -287,29 +249,15 @@ if [ "$action" = "repair" ]; then
 
 fi
 
-
-# Bootloader
-
-mkdir -p /mnt/boot/efi
-mount ${efipart} /mnt/boot/efi
-
-
-arch-chroot /mnt pacman -S --noconfirm grub efibootmgr mtools os-prober
-
-# enabling os-prober to work at grub-mkconfig step so windows can also be detected
-echo "GRUB_DISABLE_OS_PROBER=false" >> /mnt/etc/default/grub
-
-arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot/efi/ --bootloader-id=GRUB --recheck
+arch-chroot /mnt grub-install $device --recheck
 
 arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 
 
-if [ "$action" = "install" ]; then
-
-	echo -e '#!/bin/bash\n\n~/post_install' > /mnt/home/$user/.bashrc
-	arch-chroot /mnt chmod +x /home/$user/.bashrc
-
-fi
-
 
 echo "Installation finished."
+
+echo "IMPORTANT: Have a bootable MacOS device, boot into it and open the terminal. Follow these steps:"
+echo "1. run `diskutil list` and check for the device referring to the boot partition (e.g., `/dev/disk0s1`)"
+echo "2. run `bless --device /dev/DEVICE_GOES_HERE --setBoot --legacy --verbose`"
+echo "3. reboot and grub must appear normally"
